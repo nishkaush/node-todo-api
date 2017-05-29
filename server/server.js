@@ -62,9 +62,30 @@ app.get("/todos/:id", (req, res) => {
     });
 });
 
+//----------------------------------------------
 
 
+app.delete("/todos/:id", (req, res) => {
+    var randomID = req.params.id;
 
+    if (!ObjectID.isValid(randomID)) {
+        console.log("Wrong ID Format, please provide a valid ID");
+        return res.status(404).send();
+    }
+
+    console.log("Valid Id format, now searching....");
+    Todo.findByIdAndRemove(`${randomID}`).then((doc) => {
+        if (!doc) {
+            console.log("No results Found");
+            return res.status(404).send();
+        }
+        console.log("Deleted the doc successfully!");
+        return res.status(200).send(doc);
+    }).catch((e) => {
+        console.log("couldn't delete the note:", e);
+        res.status(400).send();
+    });
+});
 
 
 
