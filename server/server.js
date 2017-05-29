@@ -58,7 +58,7 @@ app.get("/todos/:id", (req, res) => {
         return res.status(200).send(result);
     }).catch((e) => {
         console.log("INVALID ID, CAN'T FETCH TODO!!")
-        res.status(400).send();
+        res.status(404).send();
     });
 });
 
