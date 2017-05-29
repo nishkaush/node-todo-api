@@ -2,6 +2,8 @@ const expect = require("expect");
 const request = require("supertest");
 var ObjectID = require("mongodb").ObjectID;
 
+
+const mongoose = require("mongoose").mongoose;
 const app = require("./../server").app;
 const Todo = require("./../models/todo").Todo;
 
@@ -48,6 +50,7 @@ describe("POST/todos", () => {
             });
     });
 
+    // -----------------------------------------------------------------
 
     it("should be good format data", (done) => {
         request(app)
@@ -67,6 +70,7 @@ describe("POST/todos", () => {
 
 });
 
+// -----------------------------------------------------------------
 
 describe("GET /todos", () => {
     it("should get all todos", (done) => {
@@ -80,6 +84,7 @@ describe("GET /todos", () => {
     });
 });
 
+// -----------------------------------------------------------------
 
 
 describe("GET /todos/:id", () => {
@@ -104,6 +109,50 @@ describe("GET /todos/:id", () => {
     it("should return 404, for non-object Ids", (done) => {
         request(app)
             .get(`/todos/592`)
+            .expect(404)
+            .end(done);
+    });
+
+});
+
+// -----------------------------------------------------------------
+
+
+describe("delete /todos/:id", () => {
+
+    it('should remove the note', (done) => {
+        var yourID = todos[0]._id.toHexString();
+        request(app)
+            .delete(`/todos/${yourID}`)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body._id).toBe(yourID);
+            })
+            .end((err, re) => {
+                if (err) {
+                    return done(err);
+                }
+                Todo.findById(yourID).then((doc) => {
+                    expect(doc).toNotExist();
+                    done();
+                }).catch((e) => {
+                    console.log("Lmao");
+                    return done(e);
+                });
+            });
+    });
+
+    it("should return 404 if note not found", (done) => {
+        var myID = new ObjectID().toHexString();
+        request(app)
+            .delete(`/todos/${myID}`)
+            .expect(404)
+            .end(done);
+    });
+
+    it("should return 404 if ObjectID not valid", (done) => {
+        request(app)
+            .delete("/todos/123")
             .expect(404)
             .end(done);
     });
