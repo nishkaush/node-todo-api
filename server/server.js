@@ -1,3 +1,14 @@
+var env = process.env.NODE_ENV || "development";
+console.log("@@@@@@@", env);
+
+if (env === "development") {
+    process.env.PORT = 3000;
+    process.env.MONGODB_URI = "mongodb://localhost:27017/TodoApp"
+} else if (env === "test") {
+    process.env.PORT = 3000;
+    process.env.MONGODB_URI = "mongodb://localhost:27017/TodoAppTest"
+}
+
 const _ = require("lodash");
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -6,10 +17,12 @@ var ObjectID = require("mongodb").ObjectID;
 var mongoose = require("./db/mongoose").mongoose;
 var Todo = require("./models/todo").Todo;
 var users = require("./models/users").users;
+const jwt = require("jsonwebtoken");
+
 
 
 var app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
@@ -27,7 +40,7 @@ app.post("/todos", (req, res) => {
     });
 });
 
-//----------------------------------------------
+//---------------------------------------------------------------------------
 
 app.get("/todos", (req, res) => {
 
@@ -40,7 +53,7 @@ app.get("/todos", (req, res) => {
     });
 });
 
-//----------------------------------------------
+//----------------------------------------------------------------------------
 
 app.get("/todos/:id", (req, res) => {
     var someId = req.params.id;
@@ -63,7 +76,7 @@ app.get("/todos/:id", (req, res) => {
     });
 });
 
-//----------------------------------------------
+//--------------------------------------------------------------------------
 
 app.delete("/todos/:id", (req, res) => {
     var randomID = req.params.id;
@@ -87,7 +100,7 @@ app.delete("/todos/:id", (req, res) => {
     });
 });
 
-//----------------------------------------------
+//----------------------------------------------------------------------------
 
 app.patch("/todos/:id", (req, res) => {
     var id = req.params.id;
@@ -120,6 +133,33 @@ app.patch("/todos/:id", (req, res) => {
     });
 
 });
+
+//-----------------------------------------------------------------------------
+
+
+app.post("/users", (req, res) => {
+    var body = _.pick(req.body, ["email", "password"]);
+    var user = new users(body);
+
+
+    // Model Methods ---> used for "users" in the model method for mongoose
+    // Instance Methods ---> used for the var user created above using the model
+
+    user.save().then((user) => {
+        return user.generateAuthToken();
+    }).then((token) => {
+        res.header("x-auth", token).send(user);
+    }).catch((e) => {
+        res.status(400).send(e);
+    });
+});
+
+
+
+
+
+
+
 
 
 app.listen(port, () => {
