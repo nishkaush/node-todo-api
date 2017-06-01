@@ -33,6 +33,7 @@ var userSchema = new mongoose.Schema({
     }]
 });
 
+// ========================================
 
 userSchema.methods.toJSON = function() {
     var user = this;
@@ -40,6 +41,7 @@ userSchema.methods.toJSON = function() {
     return _.pick(userObject, ["_id", "email"]);
 };
 
+// ========================================
 
 userSchema.methods.generateAuthToken = function() {
     var user = this;
@@ -55,11 +57,43 @@ userSchema.methods.generateAuthToken = function() {
         token: token
     });
 
-    user.save().then(() => {
+    return user.save().then(() => {
         return token;
     });
+};
+
+// ========================================
+
+// .statics is model method || generateAuthToken, toJSON are instance methods
+
+userSchema.statics.findByToken = function(token) {
+    var user = this;
+    var decoded;
+
+    try {
+        decoded = jwt.verify(token, "some secret value/Salting");
+    } catch (e) {
+        // return new Promise((resolve, reject) => {
+        //     reject();
+        // }); OR
+        return Promise.reject();
+    }
+
+    return user.findOne({
+        _id: decoded._id,
+        'tokens.token': token,
+        'tokens.access': "auth"
+    });
+
 
 };
+
+
+
+
+
+
+
 
 
 var users = mongoose.model("user", userSchema);

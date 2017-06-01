@@ -18,7 +18,7 @@ var mongoose = require("./db/mongoose").mongoose;
 var Todo = require("./models/todo").Todo;
 var users = require("./models/users").users;
 const jwt = require("jsonwebtoken");
-
+var authenticate = require("./middleware/authenticate").authenticate;
 
 
 var app = express();
@@ -134,16 +134,13 @@ app.patch("/todos/:id", (req, res) => {
 
 });
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------
 
 
 app.post("/users", (req, res) => {
     var body = _.pick(req.body, ["email", "password"]);
     var user = new users(body);
 
-
-    // Model Methods ---> used for "users" in the model method for mongoose
-    // Instance Methods ---> used for the var user created above using the model
 
     user.save().then((user) => {
         return user.generateAuthToken();
@@ -154,12 +151,13 @@ app.post("/users", (req, res) => {
     });
 });
 
+//-------------------------------------------------------------
 
+app.get("/users/me", authenticate, (req, res) => {
+    res.send(req.user);
+});
 
-
-
-
-
+//-------------------------------------------------------------
 
 
 app.listen(port, () => {
