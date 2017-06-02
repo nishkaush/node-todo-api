@@ -35,7 +35,7 @@ var userSchema = new mongoose.Schema({
 });
 
 // ========================================
-
+//
 userSchema.methods.toJSON = function() {
     var user = this;
     var userObject = user.toObject();
@@ -85,8 +85,6 @@ userSchema.statics.findByToken = function(token) {
         'tokens.token': token,
         'tokens.access': "auth"
     });
-
-
 };
 
 
@@ -106,7 +104,25 @@ userSchema.pre("save", function(next) {
 });
 
 
-
+userSchema.statics.findByCredentials = function(email, password) {
+    var user = this;
+    return user.findOne({
+        email: email
+    }).then((user) => {
+        if (!user) {
+            return Promise.reject();
+        }
+        return new Promise((resolve, reject) => {
+            bcrypt.compare(password, user.password, (err, res) => {
+                if (res) {
+                    resolve(user);
+                } else {
+                    reject();
+                }
+            });
+        });
+    });
+};
 
 
 var users = mongoose.model("user", userSchema);

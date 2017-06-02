@@ -19,6 +19,7 @@ var Todo = require("./models/todo").Todo;
 var users = require("./models/users").users;
 const jwt = require("jsonwebtoken");
 var authenticate = require("./middleware/authenticate").authenticate;
+const bcrypt = require("bcryptjs");
 
 
 var app = express();
@@ -158,6 +159,41 @@ app.get("/users/me", authenticate, (req, res) => {
 });
 
 //-------------------------------------------------------------
+
+app.post("/users/login", (req, res) => {
+    var body = _.pick(req.body, ["email", "password"]);
+
+    users.findByCredentials(body.email, body.password).then((user) => {
+        user.generateAuthToken().then((token) => {
+            res.header("x-auth", token).send(user);
+        });
+    }).catch((e) => {
+        res.status(400).send();
+    });
+
+    // var hashedPassword;
+    // users.findOne({
+    //     email: req.body.email
+    // }).then((result) => {
+    //     hashedPassword = result.password;
+    //     bcrypt.compare(req.body.password, hashedPassword, (err, re) => {
+    //         if (err) {
+    //             return console.log(err);
+    //         }
+    //         res.send("User Found,Welcome back!");
+    //     });
+    // }).catch((e) => {
+    //     res.send("cant find user");
+    // });
+
+});
+
+//-------------------------------------------------------------
+
+
+
+
+
 
 
 app.listen(port, () => {
