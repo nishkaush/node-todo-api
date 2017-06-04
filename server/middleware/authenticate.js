@@ -7,8 +7,8 @@ var authenticate = (req, res, next) => {
         if (!user) {
             Promise.reject();
         }
-        req.user = user;
-        req.token = token;
+        req.user = user; //--set user property on req to send it forward
+        req.token = token; //--set token property on req to send it further
         next();
     }).catch((e) => {
         res.status(401).send();

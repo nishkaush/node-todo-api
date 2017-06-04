@@ -20,17 +20,26 @@ const usersArr = [{
 }, {
     _id: userTwoId,
     email: "whatever@example.com",
-    password: "secondpass"
+    password: "secondpass",
+    tokens: [{
+        access: "auth",
+        token: jwt.sign({
+            _id: userTwoId,
+            access: "auth"
+        }, "some secret value/Salting").toString()
+    }]
 }];
 
 const todos = [{
     _id: new ObjectID(),
-    text: "First test todo"
+    text: "First test todo",
+    _creator: userOneId
 }, {
     _id: new ObjectID(),
     text: "second test todo",
     completed: true,
-    completedAt: 333
+    completedAt: 333,
+    _creator: userTwoId
 }];
 
 const populateTodos = (done) => {
