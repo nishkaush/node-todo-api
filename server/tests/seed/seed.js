@@ -15,7 +15,7 @@ const usersArr = [{
         token: jwt.sign({
             _id: userOneId,
             access: "auth"
-        }, "some secret value/Salting").toString()
+        }, process.env.JWT_SECRET).toString()
     }]
 }, {
     _id: userTwoId,
@@ -26,7 +26,7 @@ const usersArr = [{
         token: jwt.sign({
             _id: userTwoId,
             access: "auth"
-        }, "some secret value/Salting").toString()
+        }, process.env.JWT_SECRET).toString()
     }]
 }];
 

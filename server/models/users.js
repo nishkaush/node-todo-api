@@ -51,7 +51,7 @@ userSchema.methods.generateAuthToken = function() {
     var token = jwt.sign({
         _id: user._id.toHexString(),
         access: access
-    }, "some secret value/Salting").toString();
+    }, process.env.JWT_SECRET).toString();
 
     user.tokens.push({
         access: access,
@@ -72,7 +72,7 @@ userSchema.statics.findByToken = function(token) {
     var decoded;
 
     try {
-        decoded = jwt.verify(token, "some secret value/Salting");
+        decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (e) {
         // return new Promise((resolve, reject) => {
         //     reject();
